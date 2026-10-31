@@ -305,6 +305,14 @@
     .dialog-detail { padding: 13px; border: 1px solid var(--line); border-radius: 12px; background: rgba(255,255,255,.025); }
     .dialog-detail small { display: block; margin-bottom: 5px; color: #8293af; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; }
     .dialog-detail strong { font-size: .85rem; }
+    .case-link { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; padding: 16px 18px; border: 1px solid rgba(92, 225, 223, .5); border-radius: 15px; color: var(--text); background: linear-gradient(110deg, rgba(120, 149, 255, .2), rgba(92, 225, 223, .14)); box-shadow: 0 10px 30px rgba(73, 171, 219, .12); transition: transform .2s, border-color .2s, box-shadow .2s; }
+    .case-link[hidden] { display: none; }
+    .case-link:hover { transform: translateY(-2px); border-color: rgba(92, 225, 223, .9); box-shadow: 0 14px 38px rgba(73, 171, 219, .24); }
+    .case-link small { display: block; color: var(--cyan); font-size: .64rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+    .case-link strong { display: block; margin-top: 3px; font-size: .95rem; }
+    .case-link-arrow { display: grid; place-items: center; width: 36px; height: 36px; flex: 0 0 auto; border-radius: 50%; color: #07121e; background: var(--gradient); transition: transform .2s; }
+    .case-link:hover .case-link-arrow { transform: translate(2px, -2px); }
+    .case-link-arrow svg { width: 16px; height: 16px; }
 
     /* Motion / accessibility */
     .reveal { opacity: 0; transform: translateY(22px); transition: opacity .65s ease, transform .65s ease; }
@@ -581,7 +589,7 @@
       <div class="dialog-top"><div><span class="eyebrow">Project overview</span><h3 id="dialogTitle">Project title</h3><span class="status-badge dialog-status" id="dialogStatus" hidden><i></i><span id="dialogStatusText"></span></span></div><button class="dialog-close" id="dialogClose" aria-label="Close project details">✕</button></div>
       <p id="dialogDescription"></p>
       <div class="dialog-details"><div class="dialog-detail"><small>Focus</small><strong id="dialogFocus"></strong></div><div class="dialog-detail"><small>Design approach</small><strong id="dialogApproach"></strong></div></div>
-      <p style="font-size:.78rem;margin:18px 0 0">Replace this overview with a link to your full case study when it is published.</p>
+      <a class="case-link" id="dialogLink" href="#" target="_blank" rel="noopener noreferrer" hidden><span><small id="dialogLinkKicker">Full case study</small><strong id="dialogLinkText">View on Behance</strong></span><span class="case-link-arrow" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span></a>
     </div>
   </dialog>
 
@@ -673,26 +681,38 @@
         title: 'BookLoop',
         description: 'A book-sharing product concept that connects readers and makes borrowing or sharing pre-loved books feel simple, organized and community-oriented.',
         focus: 'Book discovery and sharing',
-        approach: 'Research · User flows · Mobile UI'
+        approach: 'Research · User flows · Mobile UI',
+        link: 'https://www.behance.net/gallery/250607159/Bookloop-Book-sharing-appUX-case-studyUI-design',
+        linkKicker: 'Full case study',
+        linkLabel: 'View BookLoop on Behance'
       },
       delivera: {
         title: 'Delivera',
         description: 'A parcel delivery app concept that supports a clear booking process and gives people confidence through understandable, timely tracking information.',
         focus: 'Parcel booking and tracking',
-        approach: 'Problem framing · Flow design · UI'
+        approach: 'Problem framing · Flow design · UI',
+        link: 'https://www.behance.net/gallery/250659977/Delivera-Parcel-Delivery-App-UX-Case-Study',
+        linkKicker: 'Full case study',
+        linkLabel: 'View Delivera on Behance'
       },
       nestora: {
         title: 'Nestora',
         description: 'A real-estate web experience concept that organizes property discovery and related services into a clearer journey for people looking to buy or rent a home.',
         focus: 'Property discovery',
-        approach: 'Card sorting · IA · Responsive UI'
+        approach: 'Card sorting · IA · Responsive UI',
+        link: 'https://www.behance.net/gallery/248676665/Nastora-Real-Estate-Rental-UX-Case-Study',
+        linkKicker: 'Full case study',
+        linkLabel: 'View Nestora on Behance'
       },
       stockflow: {
         title: 'StockFlow',
         description: 'A warehouse management product concept for small and medium e-commerce businesses, with an initial focus on inventory management and order fulfilment.',
         focus: 'Inventory and order fulfilment',
         approach: 'Workflow thinking · Dashboard UI',
-        status: 'In progress · full case study coming soon'
+        status: 'In progress · full case study coming soon',
+        link: 'https://www.behance.net/gallery/250605963/Styled-Comfort-Clothing-Brand-UI-Design-Landing-page',
+        linkKicker: 'More on Behance',
+        linkLabel: 'Check out my other projects'
       }
     };
     const dialog = document.getElementById('projectDialog');
@@ -706,6 +726,13 @@
       const statusEl = document.getElementById('dialogStatus');
       statusEl.hidden = !project.status;
       document.getElementById('dialogStatusText').textContent = project.status || '';
+      const linkEl = document.getElementById('dialogLink');
+      linkEl.hidden = !project.link;
+      if (project.link) {
+        linkEl.href = project.link;
+        document.getElementById('dialogLinkKicker').textContent = project.linkKicker || 'Full case study';
+        document.getElementById('dialogLinkText').textContent = project.linkLabel || 'View on Behance';
+      }
       dialog.showModal();
     }));
     document.getElementById('dialogClose').addEventListener('click', () => dialog.close());
