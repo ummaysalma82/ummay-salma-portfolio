@@ -27,6 +27,23 @@ Last updated: 31 October 2026.
 | 6 | Back to top not working | Fixed (cause explained in §7). Works for the footer link, the Contact link and the logo. |
 | 7 | Documentation | This file, plus short comments inside the code. |
 
+### Update 2 — Behance links in the project pop-ups
+
+The placeholder sentence at the bottom of each project pop-up ("Replace this overview with a link…") was replaced by a highlighted link button (gradient card with an arrow). It opens in a new tab.
+
+| Project | Button text | Opens |
+|---|---|---|
+| BookLoop | View BookLoop on Behance | Bookloop case study |
+| Delivera | View Delivera on Behance | Delivera case study |
+| Nestora | View Nestora on Behance | Nestora (Nastora) rental case study |
+| StockFlow | **Check out my other projects** | "Styled Comfort" clothing brand landing page on Behance |
+
+Note: the StockFlow button deliberately points to a different project (it is still in progress). The Nestora link on Behance is spelled "Nastora" in its own address; the address is used exactly as given.
+
+### Update 3 — your own images in the Hero, Work and About sections
+
+Before this update, those visuals were drawn with CSS (not pictures), so they could not be swapped. Now each one has an image slot in `SITE_CONFIG.images` (§4A). Leave a slot empty and the original illustration stays.
+
 **Extra fix found while testing:** on phones the decorative glow in the hero made the page 560 px wide (it could be dragged sideways). It is now clipped, so the page fits the screen width.
 
 ---
@@ -66,6 +83,49 @@ To go back to the typographic logo, set `logoImage: ''`.
 
 ---
 
+## 4A. Replacing the illustrations with your own images
+
+Three places can use your pictures. Open the HTML file, find `SITE_CONFIG` (end of the file, inside `<script>`) and fill the `images` block:
+
+```js
+images: {
+  hero:  { src: 'assets/hero.jpg',  alt: 'Ummay Salma — portfolio hero image' },
+  about: { src: 'assets/about.jpg', alt: 'Portrait of Ummay Salma' },
+  projects: {
+    bookloop:  { src: 'assets/bookloop.jpg',  alt: 'BookLoop app screens' },
+    delivera:  { src: 'assets/delivera.jpg',  alt: 'Delivera app screens' },
+    nestora:   { src: 'assets/nestora.jpg',   alt: 'Nestora website screens' },
+    stockflow: { src: 'assets/stockflow.jpg', alt: 'StockFlow dashboard screens' }
+  }
+}
+```
+
+### Steps
+1. Create a folder named `assets` next to `ummay_salma_portfolio.html`.
+2. Export your images (sizes below) and put them in that folder.
+3. Write each file path in the matching `src`. Leave `src: ''` to keep the illustration.
+4. Refresh the page (hard refresh: Ctrl/Cmd + Shift + R).
+5. When you publish, upload the `assets` folder too.
+
+### Best sizes (export at 2× so they stay sharp on retina screens)
+
+| Slot | Shape on the page | Export size | What happens on the page |
+|---|---|---|---|
+| Hero | Portrait, 4:5 | **800 × 1000 px** | Replaces the dashboard card. The orbit lines and the two floating chips ("Human-centered", "Product thinking") stay on top. |
+| About | Square (about 1:1) | **800 × 800 px** | Fills the rounded frame. The "Designing with intent" caption and the "Curiosity → Clarity → Craft" sticker stay, on a soft dark shade at the bottom. |
+| Each project | Landscape, about 19:10 | **1200 × 640 px** | Fills the card top. The "In progress" badge on StockFlow stays. Slight zoom on hover. |
+
+### Good to know
+- **Cropping:** images fill their frame and are cropped from the centre. On phones the project cover is less wide, so the sides are trimmed — keep the important part (phone screens, logo, face) in the middle.
+- **To show the whole image without cropping,** change `object-fit: cover` to `object-fit: contain` in the CSS rules `.hero-image`, `.project-img` or `.about-img`.
+- **File format and weight:** JPG or WebP for photos/screens, PNG or SVG when you need transparency. Aim for under 300 KB each so the page loads fast (tools like squoosh.app help).
+- **File names:** use lowercase letters, numbers and hyphens, no spaces (`bookloop-cover.jpg`).
+- **Web links:** a full `https://…` address also works, but do not link to Behance/Instagram images directly — those sites can block or change them. Download the image and keep it in `assets`.
+- **Wrong path?** The illustration stays and nothing breaks. In Chrome, open DevTools → Console to see which path was not found.
+- **Alt text:** write a short description of what the image shows. It is read by screen readers and helps accessibility and SEO.
+
+---
+
 ## 5. Everyday edits
 
 | What | Where |
@@ -75,7 +135,7 @@ To go back to the typographic logo, set `logoImage: ''`.
 | Project title / text / tags | The matching `<article class="project-card">`, plus its pop-up text in `projectInfo` in the script. |
 | Mark a project "In progress" | Add `<span class="status-badge art-status"><i></i> In progress</span>` inside its `project-art` block (copy it from StockFlow), and add `status: '...'` to that project in `projectInfo`. |
 | **Remove** the badge when StockFlow is finished | Delete that `<span class="status-badge …">` line and the `status:` line in `projectInfo.stockflow`. |
-| Link a project to its full Behance case study | Change the "Explore concept" button into a link: `<a class="text-link" href="YOUR-LINK" target="_blank" rel="noopener noreferrer">…</a>`. |
+| Change a project's Behance link or button text | In the script, find `projectInfo` → the project → edit `link` (the address), `linkKicker` (small text above) and `linkLabel` (button text). Leave `link` out and the button is hidden for that project. |
 | Email address | `SITE_CONFIG.email` (all email links on the page update). Also change it in `formEmailEndpoint` (§6) and in `google-apps-script.gs` if you use them. |
 | Behance link | Search for `ummaysalma82` (3 places). |
 
@@ -151,16 +211,16 @@ Any static host works (Netlify Drop, GitHub Pages, Cloudflare Pages, Vercel). Up
 
 - [ ] Option A activated (§6) and a test question received.
 - [ ] If using Option B: a test row appears in the Sheet.
-- [ ] The small grey line at the bottom of every project pop-up still says *"Replace this overview with a link to your full case study when it is published."* — that is a note to yourself and visitors will see it. Delete that `<p style="font-size:.78rem…">` line in the `<dialog>` block (or replace it with your case-study link).
+- [ ] Click *Explore concept* on all four projects and confirm each Behance button opens the right page. When StockFlow's case study is published, change its `link` and `linkLabel` in `projectInfo`.
 - [ ] Behance links open your profile.
 - [ ] Check on a phone: menu, form, Back to top.
-- [ ] If using a logo image: the `assets` folder is uploaded.
+- [ ] If using a logo image or any of the section images: the `assets` folder is uploaded.
 
 ---
 
 ## 9. What was tested (31 Oct 2026, desktop 1366 px and phone 390 px, Chrome)
 
-22 automated checks passed: designation text; focus areas; US logo and image-logo switch; StockFlow badge + pop-up status (and absent on other projects); email text and `mailto:` link; form title and labels; empty-form and bad-email blocking; valid submission (request body contained name, email, message); success message and form reset; failure fallback with email link; Back to top from footer, Contact and logo; no JavaScript errors; no sideways scrolling on phone.
+22 automated checks passed (plus 4 more for the Behance links in Update 2 — each pop-up button has the correct address and opens in a new tab): designation text; focus areas; US logo and image-logo switch; StockFlow badge + pop-up status (and absent on other projects); email text and `mailto:` link; form title and labels; empty-form and bad-email blocking; valid submission (request body contained name, email, message); success message and form reset; failure fallback with email link; Back to top from footer, Contact and logo; no JavaScript errors; no sideways scrolling on phone.
 
 **Not tested here:** real delivery to your inbox / Google Sheet (needs your activation and your Google account — the steps in §6). The sending requests were simulated in the test.
 
@@ -174,4 +234,5 @@ Any static host works (Netlify Drop, GitHub Pages, Cloudflare Pages, Vercel). Up
 | Form says success but no email arrives | Activation link not clicked yet | Click the FormSubmit activation email (check Spam). |
 | Nothing appears in Google Sheet | Web app access not set to "Anyone", or old deployment | Redeploy as in §6 B step 5 and re-paste the `/exec` URL. |
 | Logo image not showing | Wrong path or folder not uploaded | The "US" logo shows meanwhile; fix `logoImage` path. |
+| A hero / About / project image does not appear | Wrong path, wrong file name (capital letters matter on most hosts), or `assets` folder not uploaded | Fix the `src` path; the illustration stays until the image loads. |
 | Changes not visible | Browser cache | Hard refresh (Ctrl/Cmd + Shift + R). |

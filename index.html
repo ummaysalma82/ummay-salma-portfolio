@@ -256,6 +256,16 @@
     .social-links { display: flex; flex-wrap: wrap; gap: 21px; margin-top: 30px; color: #9eafc9; font-size: .82rem; }
     .social-links a:hover { color: var(--cyan); }
 
+    /* Custom images (set in SITE_CONFIG.images). Without an image the CSS illustration is shown. */
+    .hero-image { position: relative; width: 72%; aspect-ratio: 4 / 5; object-fit: cover; border: 1px solid rgba(171, 200, 243, .24); border-radius: 25px; box-shadow: 0 28px 80px rgba(0, 0, 0, .45); }
+    .orbital.has-image .core-card { display: none; }
+    .project-img { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+    .project-card:hover .project-img { transform: scale(1.04); }
+    .project-art.has-image::before, .project-art.has-image .art-window, .project-art.has-image .art-label { display: none; }
+    .about-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .about-frame.has-image::before { content: ""; z-index: 1; background: linear-gradient(to top, rgba(8, 13, 26, .78), transparent 50%); -webkit-text-stroke: 0; }
+    .about-frame.has-image::after { z-index: 2; }
+
     /* Contact: layout, email card and question form */
     .contact-layout { position: relative; z-index: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
     .contact-main { min-width: 0; }
@@ -452,7 +462,7 @@
 
         <div class="project-grid">
           <article class="project-card reveal">
-            <div class="project-art art-book">
+            <div class="project-art art-book" data-image-key="bookloop">
               <div class="art-window"><div class="window-bar"><i></i><i></i><i></i></div><div class="window-layout"><div class="window-side"><i></i><i></i><i></i><i></i></div><div class="window-main"><div class="window-title"></div><div class="window-line"></div><div class="window-line short"></div><div class="window-cards"><i></i><i></i><i></i></div></div></div></div>
               <span class="art-label">Discover · Borrow · Share</span>
             </div>
@@ -465,7 +475,7 @@
           </article>
 
           <article class="project-card reveal">
-            <div class="project-art art-delivera">
+            <div class="project-art art-delivera" data-image-key="delivera">
               <div class="art-window"><div class="window-bar"><i></i><i></i><i></i></div><div class="window-layout"><div class="window-side"><i></i><i></i><i></i><i></i></div><div class="window-main"><div class="window-title"></div><div class="window-line"></div><div class="window-line short"></div><div class="window-cards"><i></i><i></i><i></i></div></div></div></div>
               <span class="art-label">Send with confidence</span>
             </div>
@@ -478,7 +488,7 @@
           </article>
 
           <article class="project-card reveal">
-            <div class="project-art art-nestora">
+            <div class="project-art art-nestora" data-image-key="nestora">
               <div class="art-window"><div class="window-bar"><i></i><i></i><i></i></div><div class="window-layout"><div class="window-side"><i></i><i></i><i></i><i></i></div><div class="window-main"><div class="window-title"></div><div class="window-line"></div><div class="window-line short"></div><div class="window-cards"><i></i><i></i><i></i></div></div></div></div>
               <span class="art-label">Find a place to belong</span>
             </div>
@@ -491,7 +501,7 @@
           </article>
 
           <article class="project-card reveal">
-            <div class="project-art art-stockflow">
+            <div class="project-art art-stockflow" data-image-key="stockflow">
               <div class="art-window"><div class="window-bar"><i></i><i></i><i></i></div><div class="window-layout"><div class="window-side"><i></i><i></i><i></i><i></i></div><div class="window-main"><div class="window-title"></div><div class="window-line"></div><div class="window-line short"></div><div class="window-cards"><i></i><i></i><i></i></div></div></div></div>
               <span class="status-badge art-status"><i></i> In progress</span>
               <span class="art-label">Inventory · Orders · Clarity</span>
@@ -616,7 +626,28 @@
 
       // QUESTION FORM, option B — also save each question to Google Sheets / Google Docs via Google Apps Script.
       // Paste your deployed Web App URL here (setup steps are in DOCUMENTATION.md). '' = off.
-      googleScriptUrl: ''
+      googleScriptUrl: '',
+
+      // IMAGES — replace the drawn illustrations with your own pictures.
+      // Put the files in an "assets" folder next to this page and write the path in `src`
+      // (e.g. 'assets/hero.jpg'). Leave src '' to keep the built-in illustration.
+      // If a path is wrong, the illustration stays — nothing breaks.
+      // Images are cropped to fill their frame (centre stays visible), so keep the key content in the middle.
+      images: {
+        // Hero (right side). Best size: 800 x 1000 px (portrait, 4:5).
+        hero: { src: '', alt: 'Ummay Salma — portfolio hero image' },
+
+        // About section. Best size: 800 x 800 px (square).
+        about: { src: 'SalmaProfilePhoto.png', alt: 'Portrait of Ummay Salma' },
+
+        // Work section — one cover per project. Best size: 1200 x 640 px (landscape, about 19:10).
+        projects: {
+          bookloop:  { src: '', alt: 'BookLoop app screens' },
+          delivera:  { src: '', alt: 'Delivera app screens' },
+          nestora:   { src: '', alt: 'Nestora website screens' },
+          stockflow: { src: '', alt: 'StockFlow dashboard screens' }
+        }
+      }
     };
 
     // Logo image (optional)
@@ -631,6 +662,47 @@
       };
       img.onerror = () => brand.classList.remove('has-logo-image', 'hide-name'); // wrong path → keep the "US" logo
       img.src = SITE_CONFIG.logoImage;
+    })();
+
+    // Custom images (hero, About, project covers) — see SITE_CONFIG.images
+    (function setupImages() {
+      const cfg = SITE_CONFIG.images || {};
+      function load(slot, build) {
+        if (!slot || !slot.src) return;
+        const img = new Image();
+        img.decoding = 'async';
+        img.alt = slot.alt || '';
+        img.onload = () => build(img);
+        img.onerror = () => console.warn('[portfolio] Image not found, keeping the illustration:', slot.src);
+        img.src = slot.src;
+      }
+
+      // Hero: replaces the dashboard card; the orbit lines and floating chips stay
+      load(cfg.hero, img => {
+        const orbital = document.querySelector('.orbital');
+        img.className = 'hero-image';
+        orbital.insertBefore(img, orbital.querySelector('.core-card'));
+        orbital.classList.add('has-image');
+        document.querySelector('.hero-visual').setAttribute('aria-label', img.alt || 'Hero image');
+      });
+
+      // About: fills the frame; the caption stays on top of a soft shade
+      load(cfg.about, img => {
+        const frame = document.querySelector('.about-frame');
+        img.className = 'about-img';
+        frame.prepend(img);
+        frame.classList.add('has-image');
+        document.querySelector('.about-visual').removeAttribute('aria-hidden');
+      });
+
+      // Work: one cover per project card
+      document.querySelectorAll('.project-art[data-image-key]').forEach(art => {
+        load((cfg.projects || {})[art.dataset.imageKey], img => {
+          img.className = 'project-img';
+          art.prepend(img);
+          art.classList.add('has-image');
+        });
+      });
     })();
 
     // Email: keep every email link/text in sync with SITE_CONFIG.email
